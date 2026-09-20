@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Représentation Graphique des Fonctions</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #e8f0fe;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --primary: #1565C0;
+            --secondary: #2E7D32;
+            --tertiary: #EF6C00;
+            --quad: #6A1B9A;
+            --penta: #C62828;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f0fe, #fdfdfd);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- EN-TÊTE : TITRE À GAUCHE, PROF À DROITE --- */
+        .main-header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: left;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #ffffff;
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+        .prof-logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .info-text { display: flex; flex-direction: column; }
+        .prof-name { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .school-name { font-size: 0.9rem; color: #555; margin-top: 4px; font-weight: 600; }
+
+        /* --- CONTENEUR --- */
+        .container {
+            width: 100%; max-width: 800px; background: var(--card-bg);
+            padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        /* --- CONTRÔLES --- */
+        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .input-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .input-group label { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .input-group input {
+            width: 80px; padding: 10px; font-size: 1.1rem; text-align: center;
+            background: #f8f9fa; border: 2px solid var(--primary);
+            border-radius: 8px; color: #000; outline: none; transition: 0.3s;
+        }
+        .input-group input:focus { box-shadow: 0 0 10px rgba(21, 101, 192, 0.3); }
+
+        .buttons-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px; margin-bottom: 30px;
+        }
+        .btn {
+            padding: 12px 20px; font-size: 1rem; font-weight: bold;
+            border: none; border-radius: 8px; cursor: pointer; transition: 0.3s all ease; color: #fff;
+            opacity: 0.5;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        .btn:active { transform: translateY(1px); }
+
+        .btn-fx { background: var(--primary); }
+        .btn-fabsx { background: var(--secondary); }
+        .btn-fminusx { background: var(--tertiary); }
+        .btn-minusfx { background: var(--quad); }
+        .btn-absfx { background: var(--penta); }
+        
+        .active { opacity: 1; box-shadow: 0 0 15px currentColor; outline: 2px solid #000; }
+
+        .btn-music { background: linear-gradient(45deg, #ff416c, #ff4b2b); margin-top: 10px; opacity: 1; }
+
+        /* --- GRAPHIQUE --- */
+        .chart-container {
+            position: relative; height: 450px; width: 100%;
+            background: #ffffff; border-radius: 10px; padding: 10px; border: 1px solid #ccc;
+        }
+
+        @media (max-width: 600px) {
+            .main-header { flex-direction: column; gap: 15px; align-items: center; }
+            .chart-title { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- En-tête principal -->
+    <div class="main-header">
+        <div class="chart-title">Représentation graphique</div>
+        <div class="header-info">
+            <img src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png" alt="Logo Prof" class="prof-logo">
+            <div class="info-text">
+                <div class="prof-name">Prof : Rhouma Mohamed</div>
+                <div class="school-name">Lycée : Ouled Chamekh</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="input-group">
+                <label for="a">a</label>
+                <input type="number" id="a" value="1">
+            </div>
+            <div class="input-group">
+                <label for="b">b</label>
+                <input type="number" id="b" value="-2">
+            </div>
+            <div class="input-group">
+                <label for="c">c</label>
+                <input type="number" id="c" value="-3">
+            </div>
+        </div>
+
+        <div class="buttons-grid">
+            <button class="btn btn-fx active" onclick="toggleCurve(0)">f(x)</button>
+            <button class="btn btn-fabsx" onclick="toggleCurve(1)">f(|x|)</button>
+            <button class="btn btn-fminusx" onclick="toggleCurve(2)">f(-x)</button>
+            <button class="btn btn-minusfx" onclick="toggleCurve(3)">-f(x)</button>
+            <button class="btn btn-absfx" onclick="toggleCurve(4)">|f(x)|</button>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="musicBtn" class="btn btn-music" onclick="toggleMusic()">🎵 Musique Motivante</button>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // --- PLUGIN GEOGEBRA (AXES) ---
+        const geoGebraAxesPlugin = {
+            id: 'geoGebraAxes',
+            afterDraw: (chart) => {
+                const { ctx, chartArea, scales } = chart;
+                const { top, bottom, left, right } = chartArea;
+                const xAxis = scales.x, yAxis = scales.y;
+                ctx.save();
+                ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
+                ctx.font = 'bold 12px Arial';
+                const yZero = yAxis.getPixelForValue(0), xZero = xAxis.getPixelForValue(0);
+
+                if (yZero >= top && yZero <= bottom) {
+                    ctx.beginPath(); ctx.moveTo(left, yZero); ctx.lineTo(right, yZero); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(right, yZero); ctx.lineTo(right - 10, yZero - 5); ctx.lineTo(right - 10, yZero + 5); ctx.closePath(); ctx.fill();
+                    ctx.fillText('x', right - 15, yZero + 20);
+                }
+                if (xZero >= left && xZero <= right) {
+                    ctx.beginPath(); ctx.moveTo(xZero, top); ctx.lineTo(xZero, bottom); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(xZero, top); ctx.lineTo(xZero - 5, top + 10); ctx.lineTo(xZero + 5, top + 10); ctx.closePath(); ctx.fill();
+                    ctx.fillText('y', xZero + 10, top + 15);
+                }
+
+                xAxis.ticks.forEach(tick => {
+                    if (tick.value !== 0) {
+                        const x = xAxis.getPixelForValue(tick.value);
+                        ctx.beginPath(); ctx.moveTo(x, yZero - 4); ctx.lineTo(x, yZero + 4); ctx.stroke();
+                        ctx.textAlign = 'center'; ctx.fillText(tick.value, x, yZero + 15);
+                    }
+                });
+                yAxis.ticks.forEach(tick => {
+                    if (tick.value !== 0) {
+                        const y = yAxis.getPixelForValue(tick.value);
+                        ctx.beginPath(); ctx.moveTo(xZero - 4, y); ctx.lineTo(xZero + 4, y); ctx.stroke();
+                        ctx.textAlign = 'right'; ctx.fillText(tick.value, xZero - 8, y + 4);
+                    }
+                });
+                ctx.restore();
+            }
+        };
+
+        // --- PLUGIN ÉQUATION AU-DESSUS DE LA COURBE ---
+        const equationLabelPlugin = {
+            id: 'equationLabel',
+            afterDatasetsDraw(chart) {
+                const { ctx, data, scales: {x, y}, chartArea } = chart;
+                ctx.save();
+                ctx.font = 'bold 12px Arial';
+                
+                data.datasets.forEach((dataset, i) => {
+                    if (dataset.hidden || dataset.data.length === 0) return;
+                    
+                    let highestPoint = dataset.data[0];
+                    let maxY = -Infinity;
+                    
+                    dataset.data.forEach(p => {
+                        if (p.y > maxY) {
+                            maxY = p.y;
+                            highestPoint = p;
+                        }
+                    });
+
+                    let px = x.getPixelForValue(highestPoint.x);
+                    let py = y.getPixelForValue(highestPoint.y);
+                    
+                    py -= 15;
+                    py = Math.max(chartArea.top + 10, Math.min(chartArea.bottom - 10, py));
+
+                    const text = dataset.label;
+                    const textWidth = ctx.measureText(text).width;
+                    
+                    px = Math.min(px, chartArea.right - textWidth - 5);
+                    px = Math.max(px, chartArea.left + textWidth/2);
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.fillRect(px - textWidth/2 - 5, py - 10, textWidth + 10, 18);
+                    
+                    ctx.fillStyle = dataset.borderColor;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(text, px, py + 4);
+                });
+                ctx.restore();
+            }
+        };
+
+        // --- CONFIGURATION DU GRAPHIQUE ---
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    { label: 'f(x) = x² - 2x - 3', data: [], borderColor: '#1565C0', hidden: false, borderWidth: 3, pointRadius: 0, tension: 0.1 },
+                    { label: 'f(|x|) = ...', data: [], borderColor: '#2E7D32', hidden: true, borderWidth: 3, pointRadius: 0, tension: 0.1 },
+                    { label: 'f(-x) = ...', data: [], borderColor: '#EF6C00', hidden: true, borderWidth: 3, pointRadius: 0, tension: 0.1 },
+                    { label: '-f(x) = ...', data: [], borderColor: '#6A1B9A', hidden: true, borderWidth: 3, pointRadius: 0, tension: 0.1 },
+                    { label: '|f(x)| = ...', data: [], borderColor: '#C62828', hidden: true, borderWidth: 3, pointRadius: 0, tension: 0.1 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { type: 'linear', min: -5, max: 5, border: { display: false }, grid: { color: '#e0e0e0' }, ticks: { display: false } },
+                    y: { type: 'linear', min: -5, max: 5, border: { display: false }, grid: { color: '#e0e0e0' }, ticks: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            },
+            plugins: [geoGebraAxesPlugin, equationLabelPlugin]
+        });
+
+        const btnClasses = ['btn-fx', 'btn-fabsx', 'btn-fminusx', 'btn-minusfx', 'btn-absfx'];
+
+        // --- AFFICHAGE / MASQUAGE DES COURBES ---
+        function toggleCurve(index) {
+            myChart.data.datasets[index].hidden = !myChart.data.datasets[index].hidden;
+            
+            const btn = document.querySelector('.' + btnClasses[index]);
+            if (myChart.data.datasets[index].hidden) {
+                btn.classList.remove('active');
+            } else {
+                btn.classList.add('active');
+            }
+            
+            myChart.update();
+        }
+
+        // --- CALCUL DES DONNÉES ---
+        function calculateAllData() {
+            const a = parseFloat(document.getElementById('a').value) || 0;
+            const b = parseFloat(document.getElementById('b').value) || 0;
+            const c = parseFloat(document.getElementById('c').value) || 0;
+            
+            let eq = `${a}x² + ${b}x + ${c}`.replace(/\+\s-/g, '- ');
+            let eqAbs = `${a}|x|² + ${b}|x| + ${c}`.replace(/\+\s-/g, '- ');
+            let eqMinusX = `${a}(-x)² + ${b}(-x) + ${c}`.replace(/\+\s-/g, '- ');
+            let eqMinusFx = `-(${a}x² + ${b}x + ${c})`.replace(/\+\s-/g, '- ');
+            let eqAbsFx = `|${a}x² + ${b}x + ${c}|`.replace(/\+\s-/g, '- ');
+
+            let dataFx = [], dataFabsx = [], dataFminusx = [], dataMinusFx = [], dataAbsFx = [];
+
+            for (let x = -5; x <= 5.001; x += 0.05) {
+                let y = a * x * x + b * x + c;
+                let rX = parseFloat(x.toFixed(2));
+                dataFx.push({ x: rX, y: y });
+                dataFabsx.push({ x: rX, y: a*Math.abs(x)**2 + b*Math.abs(x) + c });
+                dataFminusx.push({ x: rX, y: a*(-x)**2 + b*(-x) + c });
+                dataMinusFx.push({ x: rX, y: -y });
+                dataAbsFx.push({ x: rX, y: Math.abs(y) });
+            }
+            
+            myChart.data.datasets[0].data = dataFx; myChart.data.datasets[0].label = `f(x) = ${eq}`;
+            myChart.data.datasets[1].data = dataFabsx; myChart.data.datasets[1].label = `f(|x|) = ${eqAbs}`;
+            myChart.data.datasets[2].data = dataFminusx; myChart.data.datasets[2].label = `f(-x) = ${eqMinusX}`;
+            myChart.data.datasets[3].data = dataMinusFx; myChart.data.datasets[3].label = `-f(x) = ${eqMinusFx}`;
+            myChart.data.datasets[4].data = dataAbsFx; myChart.data.datasets[4].label = `|f(x)| = ${eqAbsFx}`;
+            
+            myChart.update();
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateAllData);
+        });
+
+        calculateAllData();
+
+        // --- NOUVELLE MUSIQUE : SYNTHWAVE ÉNERGIQUE ---
+        let audioCtx;
+        let isPlaying = false;
+        let musicInterval;
+        let masterGain;
+        let currentStep = 0;
+
+        function toggleMusic() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.15; 
+                masterGain.connect(audioCtx.destination);
+            }
+            // Reactiver le contexte audio si le navigateur l'a suspendu
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (isPlaying) stopMusic(); else startMusic();
+        }
+
+        // Fonction pour générer un son synthé avec filtre
+        function playSynth(freq, duration, type, vol) {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            let filter = audioCtx.createBiquadFilter();
+            
+            osc.type = type; // 'sawtooth', 'square', 'sine'
+            osc.frequency.value = freq;
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = 2500; // Couper les aigus trop agressifs
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            
+            let now = audioCtx.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(vol, now + 0.01); // Attaque rapide
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Déclin
+            
+            osc.start(now);
+            osc.stop(now + duration);
+        }
+
+        // Fonction pour générer un coup de batterie (Kick)
+        function playKick() {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.12); // Basse descendante
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Séquenceur de musique (basse + mélodie + batterie)
+        const bassPattern = [110.00, 0, 0, 110.00, 0, 0, 98.00, 0, 110.00, 0, 0, 110.00, 0, 87.31, 0, 0]; // A2, G2, F2
+        const arpPattern  = [440.00, 523.25, 659.25, 523.25, 440.00, 659.25, 783.99, 659.25, 392.00, 523.25, 659.25, 523.25, 349.23, 523.25, 659.25, 523.25]; // Mélodie aiguë
+
+        function startMusic() {
+            isPlaying = true;
+            document.getElementById('musicBtn').innerText = "🔇 Couper la Musique";
+            currentStep = 0;
+            
+            // Tempo énergique (140ms par double-croche = environ 107 BPM)
+            musicInterval = setInterval(() => {
+                // 1. Batterie (Kick sur les temps forts : 0, 4, 8, 12)
+                if (currentStep % 4 === 0) playKick();
+                
+                // 2. Ligne de Basse (Synthétiseur Scie)
+                let bassNote = bassPattern[currentStep];
+                if (bassNote > 0) {
+                    playSynth(bassNote, 0.25, 'sawtooth', 0.3);
+                }
+                
+                // 3. Mélodie (Synthétiseur Carré pour un son perçant et motivant)
+                let arpNote = arpPattern[currentStep];
+                if (arpNote > 0) {
+                    playSynth(arpNote, 0.12, 'square', 0.15);
+                }
+                
+                currentStep = (currentStep + 1) % 16;
+            }, 140);
+        }
+        
+        function stopMusic() {
+            isPlaying = false;
+            document.getElementById('musicBtn').innerText = "🎵 Musique Motivante";
+            clearInterval(musicInterval);
+        }
+    </script>
+</body>
+</html>
